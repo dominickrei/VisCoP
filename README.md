@@ -1,7 +1,7 @@
 <div align="center">
 <h5>
 
-<h2><a href="https://arxiv.org/abs/2501.05711" style="color:#9C276A">
+<h2><a href="https://arxiv.org/" style="color:#9C276A">
 ViSCoP: Visual Probing for Domain Adapatation of Vision Language Models</a></h2>
 
 [![arXiv](https://img.shields.io/badge/arXiv-ViSCoP%20Paper-b31b1b?style=flat&logo=arxiv)](https://arxiv.org)
@@ -12,13 +12,16 @@ ViSCoP: Visual Probing for Domain Adapatation of Vision Language Models</a></h2>
 </div>
 
 ## Installation
-Clone the repository, create a conda environment, and install the relevant Python dependencies
+Create a conda environment and install the required Python packages
 ```shell
-git clone https://github.com/dominickrei/ViSCoP.git
-cd ViSCoP
 conda create --name=viscop python=3.10
 conda activate viscop
+
+git clone https://github.com/dominickrei/ViSCoP.git
+cd ViSCoP
 pip install -r requirements.txt
+
+pip install flash-attn --no-build-isolation
 ```
 
 ## Preparing data for training
@@ -27,3 +30,4 @@ We provide the instruction pairs as well as videos for training through [Hugging
 
 ### Robot Control
 Please follow [LLaRA's instructions](https://github.com/LostXine/LLaRA/blob/main/datasets/README.md) to prepare the VIMA dataset for ViSCoP training.
+

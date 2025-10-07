@@ -5,7 +5,7 @@
 ViSCoP: Visual Probing for Domain Adapatation of Vision Language Models</a></h2>
 
 [![arXiv](https://img.shields.io/badge/arXiv-ViSCoP%20Paper-b31b1b?style=flat&logo=arxiv)](https://arxiv.org)
-[![HuggingFace Ego-in-Exo-PerceptionMCQ](https://img.shields.io/badge/🤗%20HuggingFace-Training%20Data-FFD21F?style=flat)]([https://huggingface.co/datasets/dreilly/Ego-in-Exo-PerceptionMCQ](https://huggingface.co/datasets/dreilly/ViSCoP_data))
+[![HuggingFace ](https://img.shields.io/badge/🤗%20HuggingFace-Training%20Data-FFD21F?style=flat)](https://huggingface.co/datasets/dreilly/ViSCoP_data)
 
 </h5>
 
@@ -30,4 +30,5 @@ We provide the instruction pairs as well as videos for training through [Hugging
 
 ### Robot Control
 Please follow [LLaRA's instructions](https://github.com/LostXine/LLaRA/blob/main/datasets/README.md) to prepare the VIMA dataset for ViSCoP training.
+
 

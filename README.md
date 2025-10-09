@@ -15,7 +15,7 @@ ViSCoP: Visual Probing for Domain Adapatation of Vision Language Models</a></h2>
 
 </div>
 
-## Installation
+## ⚙️ Installation
 1. Create a conda environment
 ```shell
 conda create --name=viscop python=3.10
@@ -31,7 +31,7 @@ pip install -r requirements.txt
 pip install flash-attn --no-build-isolation
 ```
 
-## Training ViSCoP
+## 🤖 Training ViSCoP
 ### Preparing Training Data for Egocentric Viewpoint and Depth Modality
 We provide the instruction pairs as well as videos for training through [HuggingFace](https://huggingface.co/datasets/dreilly/ViSCoP_data). After downloading the data, update the following varaibles in `scripts/train/ego_depth_video/train_viscop.sh`:
 * `DATA_DIR`: Update with the path to either egocentric or depth videos
@@ -48,12 +48,13 @@ Firstly, download and extract the VIMA data through [HuggingFace](https://huggin
 ### Launch the training
 
 
-## Evaluating ViSCoP
+## ❄️ Evaluating ViSCoP
 
 
-## Building on ViSCoP
+## 🛠️ Building on ViSCoP
 
 
-## Acknowledgements
+## 🙏 Acknowledgements
+
 
 

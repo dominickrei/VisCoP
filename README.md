@@ -24,11 +24,27 @@ pip install -r requirements.txt
 pip install flash-attn --no-build-isolation
 ```
 
-## Preparing data for training
-### Egocentric Viewpoint and Depth Modality
-We provide the instruction pairs as well as videos for training through [HuggingFace](https://huggingface.co/datasets/dreilly/ViSCoP_data).
+## Training ViSCoP
+### Preparing Training Data for Egocentric Viewpoint and Depth Modality
+We provide the instruction pairs as well as videos for training through [HuggingFace](https://huggingface.co/datasets/dreilly/ViSCoP_data). After downloading the data, update the following varaibles in `scripts/train/ego_depth_video/train_viscop.sh`:
+* `DATA_DIR`: Update with the path to either egocentric or depth videos
+* `TRAINING_JSON`: Update with the path to either egocentric or depth instructions
 
-### Robot Control
-Please follow [LLaRA's instructions](https://github.com/LostXine/LLaRA/blob/main/datasets/README.md) to prepare the VIMA dataset for ViSCoP training.
+### Preparing Training Data for Simulated Robot Control
+Firstly, download and extract the VIMA data through [HuggingFace](https://huggingface.co/datasets/VIMA/VIMA-Data). Next, generate the training instruction pairs using the [conversion script provided by LLaRA](https://github.com/LostXine/LLaRA/blob/main/datasets/convert_vima.ipynb). We use the `D-inBC-text-multi-train-8k-front` instructions for all of our simulated robot control experiments.
+* After extracting the VIMA data and generating the instructions, update `DATA_DIR` and `TRAINING_JSON` in `scripts/train/robotic_control/train_viscop.sh`
+
+### Preparing Training Data for Real-world Robot Control
+
+**Coming soon!**
+
+### Launch the training
 
 
+## Evaluating ViSCoP
+
+
+## Building on ViSCoP
+
+
+## Acknowledgements

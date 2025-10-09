@@ -12,11 +12,14 @@ ViSCoP: Visual Probing for Domain Adapatation of Vision Language Models</a></h2>
 </div>
 
 ## Installation
-Create a conda environment and install the required Python packages
+1. Create a conda environment
 ```shell
 conda create --name=viscop python=3.10
 conda activate viscop
+```
 
+2. Clone ViSCoP and install the required Python packages (we use `torch 2.4.0 + cuda 12.4` in our experiments)
+```
 git clone https://github.com/dominickrei/ViSCoP.git
 cd ViSCoP
 pip install -r requirements.txt
@@ -48,3 +51,4 @@ Firstly, download and extract the VIMA data through [HuggingFace](https://huggin
 
 
 ## Acknowledgements
+

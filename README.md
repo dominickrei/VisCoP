@@ -9,6 +9,10 @@ ViSCoP: Visual Probing for Domain Adapatation of Vision Language Models</a></h2>
 
 </h5>
 
+<p align="center">
+<img src="assets/teaser.jpg" width="1000px" >
+</p>
+
 </div>
 
 ## Installation
@@ -51,4 +55,5 @@ Firstly, download and extract the VIMA data through [HuggingFace](https://huggin
 
 
 ## Acknowledgements
+
 

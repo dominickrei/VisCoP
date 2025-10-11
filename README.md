@@ -2,10 +2,10 @@
 <h5>
 
 <h2><a href="https://arxiv.org/" style="color:#9C276A">
-ViSCoP: Visual Probing for Domain Adapatation of Vision Language Models</a></h2>
+VisCoP: Visual Probing for Domain Adapatation of Vision Language Models</a></h2>
 
-[![arXiv](https://img.shields.io/badge/arXiv-ViSCoP%20Paper-b31b1b?style=flat&logo=arxiv)](https://arxiv.org)
-[![HuggingFace ](https://img.shields.io/badge/🤗%20HuggingFace-Training%20Data-FFD21F?style=flat)](https://huggingface.co/datasets/dreilly/ViSCoP_data)
+[![arXiv](https://img.shields.io/badge/arXiv-VisCoP%20Paper-b31b1b?style=flat&logo=arxiv)](https://arxiv.org)
+[![HuggingFace ](https://img.shields.io/badge/🤗%20HuggingFace-Training%20Data-FFD21F?style=flat)](https://huggingface.co/datasets/dreilly/VisCoP_data)
 
 </h5>
 
@@ -22,18 +22,18 @@ conda create --name=viscop python=3.10
 conda activate viscop
 ```
 
-2. Clone ViSCoP and install the required Python packages (we use `torch 2.4.0 + cuda 12.4` in our experiments)
+2. Clone VisCoP and install the required Python packages (we use `torch 2.4.0 + cuda 12.4` in our experiments)
 ```
-git clone https://github.com/dominickrei/ViSCoP.git
-cd ViSCoP
+git clone https://github.com/dominickrei/VisCoP.git
+cd VisCoP
 pip install -r requirements.txt
 
 pip install flash-attn --no-build-isolation
 ```
 
-## 🏋️ Training ViSCoP
+## 🏋️ Training VisCoP
 ### 🎥 Preparing Training Data for Egocentric Viewpoint and Depth Modality
-We provide the instruction pairs as well as videos for training through [HuggingFace](https://huggingface.co/datasets/dreilly/ViSCoP_data). After downloading the data, update the following varaibles in `scripts/train/ego_depth_video/train_viscop.sh`:
+We provide the instruction pairs as well as videos for training through [HuggingFace](https://huggingface.co/datasets/dreilly/VisCoP_data). After downloading the data, update the following varaibles in `scripts/train/ego_depth_video/train_viscop.sh`:
 * `DATA_DIR`: Update with the path to either egocentric or depth videos
 * `TRAINING_JSON`: Update with the path to either egocentric or depth instructions
 
@@ -50,7 +50,7 @@ In `scripts/train/ego_depth_video/train_viscop.sh` and `scripts/train/robotic_co
 * `INIT_MODEL`: This is the path to weights of the base VLM (VideoLLaMA3). Please use the following command to download and save the weights `python scripts/save_basevlm_for_finetuning.py --save-path-for-local-basevlm /path/to/save/base_vlm`
 * `DATA_DIR`: The path to your data directory containing the egocentric, depth, or robot control data
 * `TRAINING_JSON`: The path to a json file containing the egocentric, depth, or robot control instructions
-* (Optional) `NUM_VISUAL_PROBES`: The number of Visual Probes to use in ViSCoP
+* (Optional) `NUM_VISUAL_PROBES`: The number of Visual Probes to use in VisCoP
 * (Optional) `INTERACTION_MODULE_POS`: The positions of the interaction modules. Acceptable values are `all` or a comma-separated list of integers (denoting zero-indexed layer indices of the vision encoder)
 
 (**Single node training**) After updating the training scripts, initiate the training with the following command:
@@ -63,12 +63,12 @@ bash scripts/train/ego_depth_video/train_viscop.sh 1 <NUM_GPUS>
 sbatch ex_multi_node_slurm_job.sh
 ```
 
-## ❄️ Evaluating ViSCoP
+## ❄️ Evaluating VisCoP
 ### 💾 Preparing Source and Target Domain Data
 | Target domain | Target Domain Data | Source Domain Data |
 |-----------|-----------|-----------|
 | Egocentric Viewpoint | [Ego-in-Exo PerceptionMCQ](https://huggingface.co/datasets/dreilly/Ego-in-Exo-PerceptionMCQ), [EgoSchema](https://huggingface.co/datasets/lmms-lab/egoschema) | [NeXTQA](https://huggingface.co/datasets/lmms-lab/NExTQA), [VideoMME](https://huggingface.co/datasets/lmms-lab/Video-MME), [ADL-X](https://github.com/ADL-X/LLAVIDAL/tree/main?tab=readme-ov-file#quantitative-evaluation-) |
-| Depth Modality | [Ego-in-Exo PerceptionMCQ (Exo Depth)](https://huggingface.co/datasets/dreilly/ViSCoP_data) (contained in `depth_videos.zip`) | [Ego-in-Exo PerceptionMCQ (Exo RGB)](https://huggingface.co/datasets/dreilly/Ego-in-Exo-PerceptionMCQ), [NeXTQA](https://huggingface.co/datasets/lmms-lab/NExTQA), [VideoMME](https://huggingface.co/datasets/lmms-lab/Video-MME), [ADL-X](https://github.com/ADL-X/LLAVIDAL/tree/main?tab=readme-ov-file#quantitative-evaluation-) |
+| Depth Modality | [Ego-in-Exo PerceptionMCQ (Exo Depth)](https://huggingface.co/datasets/dreilly/VisCoP_data) (contained in `depth_videos.zip`) | [Ego-in-Exo PerceptionMCQ (Exo RGB)](https://huggingface.co/datasets/dreilly/Ego-in-Exo-PerceptionMCQ), [NeXTQA](https://huggingface.co/datasets/lmms-lab/NExTQA), [VideoMME](https://huggingface.co/datasets/lmms-lab/Video-MME), [ADL-X](https://github.com/ADL-X/LLAVIDAL/tree/main?tab=readme-ov-file#quantitative-evaluation-) |
 | Robot Control | [VIMA-Bench](https://github.com/vimalabs/VIMABench?tab=readme-ov-file#installation) | [Ego-in-Exo PerceptionMCQ (Exo RGB)](https://huggingface.co/datasets/dreilly/Ego-in-Exo-PerceptionMCQ), [NeXTQA](https://huggingface.co/datasets/lmms-lab/NExTQA), [VideoMME](https://huggingface.co/datasets/lmms-lab/Video-MME), [ADL-X](https://github.com/ADL-X/LLAVIDAL/tree/main?tab=readme-ov-file#quantitative-evaluation-) |
 
 <details>
@@ -109,7 +109,7 @@ sbatch ex_multi_node_slurm_job.sh
 
 </details>
 
-### 🏃 Run the evaluations
+### 🏃🎥 Run the video understanding evaluations
 After downloading the data, update the following varaibles in `scripts/eval/eval_video.sh`:
 * `DATA_ROOT`: Update with the path to your evaluation directory, ensure it follows the same structure as shown above
 
@@ -122,12 +122,33 @@ e.g., bash scripts/eval/eval_video.sh /path/to/trained/viscop/model egoperceptio
 **NOTE:** Evaluations on Ego-in-Exo PerceptionMCQ and ADL-X require Llama 3.1. You will need to install [Ollama](https://ollama.com/download) and download the Llama 3.1 model by running the command `ollama run llama3.1` prior to running the evaluations.
 * If you are using an HPC environment and can not install Ollama, you will need to run an Ollama server locally
   * To do this, download the Ollama server that matches your system architecture from their [releases page](https://github.com/ollama/ollama/releases). Then update and uncomment lines `59-62` in `scripts/eval/eval_video.sh`
+ 
+### 🏃🤖 Run the simulated robotics evaluations
+We provide code to evaluate VisCoP models on simulated robotics tasks (VIMA-Bench) in `robotics_evaluation`, adapted from [LLaRA](https://github.com/LostXine/LLaRA)
+1. Install the VIMA-Bench dependencies from [their official reposiotory](https://github.com/vimalabs/VIMABench?tab=readme-ov-file#installation)
+2. Run the following command
+```shell
+torchrun --nproc_per_node=<NUM_GPUS> ./robotics_evaluation/eval-viscop.py <OUTPUT NAME> --model-path /path/to/trained/viscop_model --output-path ./robotics_evaluation/results/ --prompt-mode hso
+```
+3. After the evaluation is complete, run the cells in `robotics_evaluation/viscop-results.ipynb` to see the final success rates across each VIMA-Bench subset
 
+## 🛠️ Building on VisCoP
+If you would like to build on VisCoP, we mention the specific codes that might be helpful:
+* `viscop/model/viscop_vision_encoder/modeling_viscop_vision_encoder.py` contains the implementations of visual probes and interaction modules
+* `viscop/model/viscop_arch.py` contains the vision-language connector for the visual features and visual probes
+* `viscop/model/viscop_qwen2.py` contains the code where visual probes are passed to the LLM
+* `viscop/model/processor.py` contains the code to add placeholders for visual features and visual probes to the language instruction
+* `viscop/train_viscop.py` contains the training logic for VisCoP
 
-## 🛠️ Building on ViSCoP
-
-
+Please consider citing VisCoP if it is helpful for your project!
+```bibtex
+@article{viscop2025,
+  title={VisCoP: Visual Probing for Video Domain Adaptation of Vision Language Models}, 
+  author={Dominick Reilly and Manish Kumar Govind and Le Xue and Srijan Das},
+  journal={arXiv Preprint},
+  year={2025}
+}
+```
 
 ## 🙏 Acknowledgements
-We thank the researchers behind the following codebases and model releases for their great open source work which ViSCoP builds upon! [VideoLLaMA3](https://github.com/DAMO-NLP-SG/VideoLLaMA3), [LLaVA-OneVision](https://github.com/LLaVA-VL/LLaVA-NeXT), [Qwen2.5-VL](https://github.com/QwenLM/Qwen2.5-VL), [SigLIP](https://arxiv.org/abs/2303.15343), and [Qwen2.5](https://arxiv.org/abs/2412.15115).
-
+We thank the researchers behind the following codebases and model releases for their great open source work which VisCoP builds upon! [VideoLLaMA3](https://github.com/DAMO-NLP-SG/VideoLLaMA3), [LLaVA-OneVision](https://github.com/LLaVA-VL/LLaVA-NeXT), [Qwen2.5-VL](https://github.com/QwenLM/Qwen2.5-VL), [SigLIP](https://arxiv.org/abs/2303.15343), and [Qwen2.5](https://arxiv.org/abs/2412.15115).

@@ -64,10 +64,64 @@ sbatch ex_multi_node_slurm_job.sh
 ```
 
 ## ❄️ Evaluating ViSCoP
-### Preparing Target Domain Data
+### 💾 Preparing Source and Target Domain Data
+| Target domain | Target Domain Data | Source Domain Data |
+|-----------|-----------|-----------|
+| Egocentric Viewpoint | [Ego-in-Exo PerceptionMCQ](https://huggingface.co/datasets/dreilly/Ego-in-Exo-PerceptionMCQ), [EgoSchema](https://huggingface.co/datasets/lmms-lab/egoschema) | [NeXTQA](https://huggingface.co/datasets/lmms-lab/NExTQA), [VideoMME](https://huggingface.co/datasets/lmms-lab/Video-MME), [ADL-X](https://github.com/ADL-X/LLAVIDAL/tree/main?tab=readme-ov-file#quantitative-evaluation-) |
+| Depth Modality | [Ego-in-Exo PerceptionMCQ (Exo Depth)](https://huggingface.co/datasets/dreilly/ViSCoP_data) (contained in `depth_videos.zip`) | [Ego-in-Exo PerceptionMCQ (Exo RGB)](https://huggingface.co/datasets/dreilly/Ego-in-Exo-PerceptionMCQ), [NeXTQA](https://huggingface.co/datasets/lmms-lab/NExTQA), [VideoMME](https://huggingface.co/datasets/lmms-lab/Video-MME), [ADL-X](https://github.com/ADL-X/LLAVIDAL/tree/main?tab=readme-ov-file#quantitative-evaluation-) |
+| Robot Control | [VIMA-Bench](https://github.com/vimalabs/VIMABench?tab=readme-ov-file#installation) | [Ego-in-Exo PerceptionMCQ (Exo RGB)](https://huggingface.co/datasets/dreilly/Ego-in-Exo-PerceptionMCQ), [NeXTQA](https://huggingface.co/datasets/lmms-lab/NExTQA), [VideoMME](https://huggingface.co/datasets/lmms-lab/Video-MME), [ADL-X](https://github.com/ADL-X/LLAVIDAL/tree/main?tab=readme-ov-file#quantitative-evaluation-) |
 
+<details>
+<summary>Click to view our evaluation directory structure</summary>
+  
+    /path/to/vlm_eval_bench/
+    ├── adlx
+    │   ├── Charades-AR.json
+    │   ├── Charades-Description.json
+    │   ├── LEMMA-TC.json
+    │   ├── Smarthome-AR.json
+    │   ├── TSU-Description.json
+    │   ├── TSU-TC.json
+    │   └── videos
+    │       ├── ADLMCQ-TC-TSU
+    │       ├── Charades_v1_480
+    │       ├── lemma_cropped
+    │       └── SH_cropped224x224_better
+    ├── egoperceptionmcq
+    │   ├── all_category_qas.json
+    │   ├── keystep_segments
+    │   └── depth_videos
+    ├── egoschema
+    │   ├── GENERATION
+    │   ├── MC
+    │   ├── MC_PPL
+    │   ├── questions.json
+    │   ├── Subset
+    │   ├── subset_answers.json
+    │   └── videos
+    ├── nextqa
+    │   ├── NExTVideo
+    │   └── test.csv
+    └── videomme
+        ├── subtitle
+        ├── test-00000-of-00001.parquet
+        └── videos
 
-### Preparing Source Domain Data
+</details>
+
+### 🏃 Run the evaluations
+After downloading the data, update the following varaibles in `scripts/eval/eval_video.sh`:
+* `DATA_ROOT`: Update with the path to your evaluation directory, ensure it follows the same structure as shown above
+
+After updating the evaluation script, run the following command:
+```shell
+bash scripts/eval/eval_video.sh /path/to/trained/viscop/model <BENCHMARKS> 1 <NUM_GPUS>
+e.g., bash scripts/eval/eval_video.sh /path/to/trained/viscop/model egoperceptionmcq,egoschema,nextqa,videomme,adlx_mcq 1 8
+```
+
+**NOTE:** Evaluations on Ego-in-Exo PerceptionMCQ and ADL-X require Llama 3.1. You will need to install [Ollama](https://ollama.com/download) and download the Llama 3.1 model by running the command `ollama run llama3.1` prior to running the evaluations.
+* If you are using an HPC environment and can not install Ollama, you will need to run an Ollama server locally
+  * To do this, download the Ollama server that matches your system architecture from their [releases page](https://github.com/ollama/ollama/releases). Then update and uncomment lines `59-62` in `scripts/eval/eval_video.sh`
 
 
 ## 🛠️ Building on ViSCoP
@@ -76,3 +130,4 @@ sbatch ex_multi_node_slurm_job.sh
 
 ## 🙏 Acknowledgements
 We thank the researchers behind the following codebases and model releases for their great open source work which ViSCoP builds upon! [VideoLLaMA3](https://github.com/DAMO-NLP-SG/VideoLLaMA3), [LLaVA-OneVision](https://github.com/LLaVA-VL/LLaVA-NeXT), [Qwen2.5-VL](https://github.com/QwenLM/Qwen2.5-VL), [SigLIP](https://arxiv.org/abs/2303.15343), and [Qwen2.5](https://arxiv.org/abs/2412.15115).
+

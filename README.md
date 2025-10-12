@@ -33,7 +33,7 @@ pip install flash-attn --no-build-isolation
 
 ## 🏋️ Training VisCoP
 ### 🎥 Preparing Training Data for Egocentric Viewpoint and Depth Modality
-We provide the instruction pairs as well as videos for training through [HuggingFace](https://huggingface.co/datasets/dreilly/VisCoP_data). After downloading the data, update the following varaibles in `scripts/train/ego_depth_video/train_viscop.sh`:
+We provide the instruction pairs as well as videos for training through [HuggingFace](https://huggingface.co/datasets/dreilly/VisCoP_data). After downloading the data, update the following variables in `scripts/train/ego_depth_video/train_viscop.sh`:
 * `DATA_DIR`: Update with the path to either egocentric or depth videos
 * `TRAINING_JSON`: Update with the path to either egocentric or depth instructions
 
@@ -110,7 +110,7 @@ sbatch ex_multi_node_slurm_job.sh
 </details>
 
 ### 🏃🎥 Run the video understanding evaluations
-After downloading the data, update the following varaibles in `scripts/eval/eval_video.sh`:
+After downloading the data, update the following variables in `scripts/eval/eval_video.sh`:
 * `DATA_ROOT`: Update with the path to your evaluation directory, ensure it follows the same structure as shown above
 
 After updating the evaluation script, run the following command:
@@ -152,3 +152,4 @@ Please consider citing VisCoP if it is helpful for your project!
 
 ## 🙏 Acknowledgements
 We thank the researchers behind the following codebases and model releases for their great open source work which VisCoP builds upon! [VideoLLaMA3](https://github.com/DAMO-NLP-SG/VideoLLaMA3), [LLaVA-OneVision](https://github.com/LLaVA-VL/LLaVA-NeXT), [Qwen2.5-VL](https://github.com/QwenLM/Qwen2.5-VL), [SigLIP](https://arxiv.org/abs/2303.15343), and [Qwen2.5](https://arxiv.org/abs/2412.15115).
+

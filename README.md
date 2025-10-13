@@ -15,6 +15,13 @@ VisCoP: Visual Probing for Domain Adapatation of Vision Language Models</a></h2>
 
 </div>
 
+<p align="center">
+  <video src="assets/egocentric_viewpoint.mp4" width="30%" autoplay loop muted></video>
+  <video src="assets/depth_modality.mp4" width="30%" autoplay loop muted></video>
+  <video src="assets/robot_control.mp4" width="30%" autoplay loop muted></video>
+</p>
+
+
 ## ⚙️ Installation
 1. Create a conda environment
 ```shell
@@ -152,4 +159,5 @@ Please consider citing VisCoP if it is helpful for your project!
 
 ## 🙏 Acknowledgements
 We thank the researchers behind the following codebases and model releases for their great open source work which VisCoP builds upon! [VideoLLaMA3](https://github.com/DAMO-NLP-SG/VideoLLaMA3), [LLaVA-OneVision](https://github.com/LLaVA-VL/LLaVA-NeXT), [Qwen2.5-VL](https://github.com/QwenLM/Qwen2.5-VL), [SigLIP](https://arxiv.org/abs/2303.15343), and [Qwen2.5](https://arxiv.org/abs/2412.15115).
+
 

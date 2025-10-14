@@ -16,7 +16,7 @@ VisCoP: Visual Probing for Domain Adapatation of Vision Language Models</a></h2>
 </div>
 
 <p align="center">
-  <video src="https://github.com/user-attachments/assets/cec39f9a-32ac-4479-a3bf-39fc4866d649" autoplay loop muted></video>
+  <video src="https://github.com/user-attachments/assets/3478722b-e98b-40e8-a82a-b15a9770c542" autoplay loop muted></video>
 </p>
 
 
@@ -157,6 +157,7 @@ Please consider citing VisCoP if it is helpful for your project!
 
 ## 🙏 Acknowledgements
 We thank the researchers behind the following codebases and model releases for their great open source work which VisCoP builds upon! [VideoLLaMA3](https://github.com/DAMO-NLP-SG/VideoLLaMA3), [LLaVA-OneVision](https://github.com/LLaVA-VL/LLaVA-NeXT), [Qwen2.5-VL](https://github.com/QwenLM/Qwen2.5-VL), [SigLIP](https://arxiv.org/abs/2303.15343), and [Qwen2.5](https://arxiv.org/abs/2412.15115).
+
 
 
 

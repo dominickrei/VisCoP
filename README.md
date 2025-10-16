@@ -1,10 +1,10 @@
 <div align="center">
 <h5>
 
-<h2><a href="https://arxiv.org/" style="color:#9C276A">
+<h2><a href="https://arxiv.org/abs/2510.13808" style="color:#9C276A">
 VisCoP: Visual Probing for Domain Adapatation of Vision Language Models</a></h2>
 
-[![arXiv](https://img.shields.io/badge/arXiv-VisCoP%20Paper-b31b1b?style=flat&logo=arxiv)](https://arxiv.org)
+[![arXiv](https://img.shields.io/badge/arXiv-VisCoP%20Paper-b31b1b?style=flat&logo=arxiv)](https://arxiv.org/abs/2510.13808)
 [![HuggingFace ](https://img.shields.io/badge/🤗%20HuggingFace-Training%20Data-FFD21F?style=flat)](https://huggingface.co/datasets/dreilly/VisCoP_data)
 
 </h5>
@@ -157,6 +157,7 @@ Please consider citing VisCoP if it is helpful for your project!
 
 ## 🙏 Acknowledgements
 We thank the researchers behind the following codebases and model releases for their great open source work which VisCoP builds upon! [VideoLLaMA3](https://github.com/DAMO-NLP-SG/VideoLLaMA3), [LLaVA-OneVision](https://github.com/LLaVA-VL/LLaVA-NeXT), [Qwen2.5-VL](https://github.com/QwenLM/Qwen2.5-VL), [SigLIP](https://arxiv.org/abs/2303.15343), and [Qwen2.5](https://arxiv.org/abs/2412.15115).
+
 
 
 

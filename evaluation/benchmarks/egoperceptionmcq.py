@@ -79,7 +79,7 @@ class EgoExo4DDataset(BaseVideoEvalDataset):
             question = meta_data['question']
             choices_str = " ".join(f'({letter}) {option}' for letter, option in zip(option_letters, options))
             prompt = llm_answer_parsing.build_prompt(question, choices_str, response)
-            llm_response = llm_answer_parsing.parse_with_llama(prompt)
+            response = llm_answer_parsing.parse_with_llama(prompt)
 
             pred_answer = re.findall(f'[\(\ ]*[A-{max_letter}][\)\ ]*', response)
         

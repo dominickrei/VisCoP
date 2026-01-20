@@ -6,6 +6,7 @@ VisCoP: Visual Probing for Domain Adapatation of Vision Language Models</a></h2>
 
 [![arXiv](https://img.shields.io/badge/arXiv-VisCoP%20Paper-b31b1b?style=flat&logo=arxiv)](https://arxiv.org/abs/2510.13808)
 [![HuggingFace ](https://img.shields.io/badge/🤗%20HuggingFace-Training%20Data-FFD21F?style=flat)](https://huggingface.co/datasets/dreilly/VisCoP_data)
+[![HuggingFace ](https://img.shields.io/badge/🤗%20HuggingFace-VisCoP%20Models-FFD21F?style=flat)](https://huggingface.co/dreilly/viscop-models/tree/main)
 
 </h5>
 
@@ -35,6 +36,63 @@ pip install -r requirements.txt
 
 pip install flash-attn --no-build-isolation
 ```
+
+## Inference
+First, download pre-trained VisCoP models through [HuggingFace](https://huggingface.co/dreilly/viscop-models/tree/main): `hf download dreilly/viscop-models --local-dir ./viscop_trained_models`
+
+```python
+from viscop import model_init, mm_infer
+from viscop.mm_utils import load_video
+
+## Load model
+model_path = './viscop_trained_models/viscop_qwen2.5_7b_viscop-lora_egocentric-expert'
+
+model, processor = model_init(
+    model_path=model_path,
+    device_map={"": "cuda"}
+)
+
+## Load video
+video_path = './assets/ego_cut_carrot.mp4'
+
+frames, timestamps = load_video(video_path, fps=1, max_frames=180)
+
+## Create conversation
+conversation = [
+    {
+        "role": "user",
+        "content": [
+            {"type": "video", "timestamps": timestamps, "num_frames": len(frames)},
+            {"type": "text", "text": "What vegetable is the person cutting in the video?"},
+        ]
+    }
+]
+
+## Perform inference
+inputs = processor(
+    images=[frames],
+    text=conversation,
+    merge_size=2,
+    return_tensors="pt",
+)
+
+prediction = mm_infer(
+    inputs,
+    model=model,
+    tokenizer=processor.tokenizer,
+    do_sample=False,
+    modal='video'
+)
+
+print(prediction)
+```
+
+### Gradio Demo
+We provide a Gradio interface to interact with VisCoP models. After downloading the models following the instructions above, run the following command to launch the demo:
+
+```python inference/launch_gradio_demo.py --model-path ./viscop_trained_models/viscop_qwen2.5_7b_viscop-lora_egocentric-expert```
+
+Note: if you are running the demo on a remote machine, be sure to forward the client port (9999 by default) so you can access the web interface through your local network. For example, `ssh -L 9999:localhost:9999 user@host`
 
 ## 🏋️ Training VisCoP
 ### 🎥 Preparing Training Data for Egocentric Viewpoint and Depth Modality
@@ -157,6 +215,7 @@ Please consider citing VisCoP if it is helpful for your project!
 
 ## 🙏 Acknowledgements
 We thank the researchers behind the following codebases and model releases for their great open source work which VisCoP builds upon! [VideoLLaMA3](https://github.com/DAMO-NLP-SG/VideoLLaMA3), [LLaVA-OneVision](https://github.com/LLaVA-VL/LLaVA-NeXT), [Qwen2.5-VL](https://github.com/QwenLM/Qwen2.5-VL), [SigLIP](https://arxiv.org/abs/2303.15343), and [Qwen2.5](https://arxiv.org/abs/2412.15115).
+
 
 
 

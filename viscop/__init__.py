@@ -23,7 +23,6 @@ def disable_torch_init():
 
 
 def model_init(model_path=None, max_visual_tokens=None, **kwargs):
-    model_path = "DAMO-NLP-SG/VideoLLaMA3-7B" if model_path is None else model_path # ! Change
     model_name = get_model_name_from_path(model_path)
     tokenizer, model, image_processor, context_len = load_pretrained_model(model_path, None, model_name, **kwargs)
 

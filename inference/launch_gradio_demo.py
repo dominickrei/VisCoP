@@ -5,8 +5,8 @@ import argparse
 import subprocess
 from threading import Thread
 
-from inference.interface import VideoLLaMA3GradioInterface
-from inference.server import VideoLLaMA3PlainClient
+from inference.interface import VisCoPGradioInterface
+from inference.server import VisCoPPlainClient
 
 
 if __name__ == "__main__":
@@ -31,8 +31,8 @@ if __name__ == "__main__":
     server_thread.daemon = True
     server_thread.start()
 
-    model_client = VideoLLaMA3PlainClient(port=args.server_port)
-    interface = VideoLLaMA3GradioInterface(
+    model_client = VisCoPPlainClient(port=args.server_port)
+    interface = VisCoPGradioInterface(
         model_client,
         example_dir="./assets",
         server_name="0.0.0.0",

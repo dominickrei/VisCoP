@@ -52,7 +52,7 @@ class Streamer(object):
             return value
 
 
-class VideoLLaMA3PlainClient(object):
+class VisCoPPlainClient(object):
 
     def __init__(self, host="localhost", port=16666):
         self.host = host
@@ -60,7 +60,7 @@ class VideoLLaMA3PlainClient(object):
 
         self.input_buffer = Queue(maxsize=1024)
         self.streamers = dict()
-        self.logger = get_logger("videollama3.client")
+        self.logger = get_logger("viscop.client")
 
         client_thread = Thread(target=self._client_worker)
         client_thread.deamon = True
@@ -132,7 +132,7 @@ class VideoLLaMA3PlainClient(object):
         return streamer
 
 
-class VideoLLaMA3PlainServer(object):
+class VisCoPPlainServer(object):
 
     def __init__(
         self,
@@ -154,7 +154,7 @@ class VideoLLaMA3PlainServer(object):
         self.port = port
 
     def _model_worker(self, input_buffer, output_buffer, device_map, rank):
-        logger = get_logger(f"videollama3.server.worker_{rank}")
+        logger = get_logger(f"viscop.server.worker_{rank}")
         logger.info(f"Loading model from {self.model_path}...")
 
         # model = AutoModelForCausalLM.from_pretrained(
@@ -238,7 +238,7 @@ class VideoLLaMA3PlainServer(object):
             logger.info(f"Connection from {client_address} has been terminated.")
 
     def launch(self):
-        logger = get_logger(f"videollama3.server.controller")
+        logger = get_logger(f"viscop.server.controller")
 
         input_buffer = Queue(maxsize=self.num_processes * self.buffer_size)
         output_buffer = Queue(maxsize=self.num_processes * 1024)
@@ -275,7 +275,7 @@ if __name__ == "__main__":
     parser.add_argument("--port", type=int, default=16666)
     args = parser.parse_args()
 
-    server = VideoLLaMA3PlainServer(
+    server = VisCoPPlainServer(
         model_path=args.model_path,
         num_processes=args.nproc,
         port=args.port,

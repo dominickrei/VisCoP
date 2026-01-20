@@ -1,1 +1,1 @@
-from .plain_server import VideoLLaMA3PlainClient, VideoLLaMA3PlainServer
+from .plain_server import VisCoPPlainClient, VisCoPPlainServer

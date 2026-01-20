@@ -19,7 +19,7 @@ HEADER = """
 """
 
 
-class VideoLLaMA3GradioInterface(object):
+class VisCoPGradioInterface(object):
 
     def __init__(self, model_client, example_dir=None, **server_kwargs):
         self.model_client = model_client

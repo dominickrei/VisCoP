@@ -1,1 +1,1 @@
-from .gradio_interface import VideoLLaMA3GradioInterface
+from .gradio_interface import VisCoPGradioInterface

@@ -37,7 +37,7 @@ pip install -r requirements.txt
 pip install flash-attn --no-build-isolation
 ```
 
-## Inference
+## 💻 Inference
 First, download pre-trained VisCoP models through [HuggingFace](https://huggingface.co/dreilly/viscop-models/tree/main): `hf download dreilly/viscop-models --local-dir ./viscop_trained_models`
 
 ```python
@@ -87,7 +87,7 @@ prediction = mm_infer(
 print(prediction)
 ```
 
-### Gradio Demo
+### 🕸️ Gradio Demo
 We provide a Gradio interface to interact with VisCoP models. After downloading the models following the instructions above, run the following command to launch the demo:
 
 ```python inference/launch_gradio_demo.py --model-path ./viscop_trained_models/viscop_qwen2.5_7b_viscop-lora_egocentric-expert```
@@ -215,6 +215,7 @@ Please consider citing VisCoP if it is helpful for your project!
 
 ## 🙏 Acknowledgements
 We thank the researchers behind the following codebases and model releases for their great open source work which VisCoP builds upon! [VideoLLaMA3](https://github.com/DAMO-NLP-SG/VideoLLaMA3), [LLaVA-OneVision](https://github.com/LLaVA-VL/LLaVA-NeXT), [Qwen2.5-VL](https://github.com/QwenLM/Qwen2.5-VL), [SigLIP](https://arxiv.org/abs/2303.15343), and [Qwen2.5](https://arxiv.org/abs/2412.15115).
+
 
 
 

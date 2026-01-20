@@ -88,6 +88,55 @@ DEFAULT_CHAT_TEMPLATE += """
 {% endif %}
 """
 
+# Types used for conversation processing (specifically in gradio interface)
+from viscop.model.viscop_vision_encoder.image_processing_viscop import is_valid_video, is_valid_image
+
+def is_named_image(image) -> bool:
+    return isinstance(image, (list, tuple)) and \
+        len(image) == 2 and \
+        isinstance(image[0], str) and \
+        image[0] in ["image", "video"] and \
+        (is_valid_image(image[1]) or is_valid_video(image[1]))
+
+def make_batched_images(images) -> List[List[ImageInput]]:
+    if isinstance(images, (list, tuple)) and all(is_named_image(image) for image in images):
+        # list of named images
+        return [image[0] for image in images], [image[1] for image in images]
+    elif isinstance(images, (list, tuple)) and all(is_valid_image(image) or is_valid_video(image) for image in images):
+        # list of images/videos
+        batch = []
+        for image in images:
+            if is_valid_video(image):
+                batch.append(("video", image))
+            elif is_valid_image(image):
+                batch.append(("image", image))
+            else:
+                raise ValueError(f"Could not make batched images from {images}")
+        return [x[0] for x in batch], [x[1] for x in batch]
+    elif is_named_image(images):
+        # named images
+        return [images[0]], [image[1]]
+    elif is_valid_video(images):
+        # single video
+        return ["video"], [images]
+    elif is_valid_image(images):
+        # single image
+        return ["image"], [images]
+
+    raise ValueError(f"Could not make batched images from {images}")
+
+from typing import Any, Tuple, TypedDict
+from collections import defaultdict
+from PIL import Image
+import numpy as np
+import json
+
+Conversation = List[Dict[str, Any]]
+SingleImage = Union[Image.Image, np.ndarray, torch.Tensor]
+SingleVideo = Union[List[SingleImage], np.ndarray, torch.Tensor]
+BatchedImage = List[Union[SingleImage, SingleVideo]]
+BatchedNamedImage = List[Tuple[str, Union[SingleImage, SingleVideo]]]
+
 
 class ViSCoP_ProcessorKwargs(ProcessingKwargs, total=False):
     _defaults = {
@@ -252,7 +301,7 @@ class ViSCoP_Processor(ProcessorMixin):
             text = [self.tokenizer.apply_chat_template(text, tokenize=False, add_generation_prompt=True)]
 
         if not self.include_visual_tokens:
-                text[0] = text[0].replace('<image>,', '')
+            text[0] = text[0].replace('<image>,', '')
 
         if self.include_visual_probes:
             if self.include_visual_tokens:
@@ -382,3 +431,267 @@ class ViSCoP_Processor(ProcessorMixin):
         tokenizer_input_names = self.tokenizer.model_input_names
         image_processor_input_names = self.image_processor.model_input_names
         return list(dict.fromkeys(tokenizer_input_names + image_processor_input_names))
+    
+    ### > Below we'll try to add the functions that allow the processor to be used for the gradio interface (which requires conversation processing)
+    def gradio_call(
+        self,
+        conversation: Optional[Conversation] = None,
+        images: Optional[Union[BatchedImage, BatchedNamedImage]] = None,
+        return_labels: bool = False,
+        **kwargs: Unpack[ViSCoP_ProcessorKwargs],
+    ) -> BatchFeature:
+        assert conversation is not None, "For gradio interface, conversation must be provided."
+        
+        return self._process_conversation(conversation, images, return_labels, **kwargs)
+
+    def _process_conversation(
+        self,
+        conversation: Conversation,
+        images: Optional[Union[BatchedImage, BatchedNamedImage]] = None,
+        return_labels: bool = False,
+        **kwargs: Unpack[ViSCoP_ProcessorKwargs],
+    ) -> BatchFeature:
+        assert isinstance(conversation, list), "Conversation must be a list of messages."
+
+        if images is None:
+            conversation = self._load_multimodal_data(conversation)
+            images = self._gather_multimodal_data(conversation)
+
+        output_kwargs = self._merge_kwargs(
+            ViSCoP_ProcessorKwargs,
+            tokenizer_init_kwargs=self.tokenizer.init_kwargs,
+            **kwargs,
+        )
+
+        if images is not None:
+            image_inputs = self.process_images_conv(images, **output_kwargs["images_kwargs"])
+        else:
+            image_inputs = {}
+
+        if return_labels:
+            raise NotImplementedError("Processing conversation with labels is not implemented yet.")
+            text_inputs = self._process_conversation_with_label(conversation, image_inputs, **kwargs)
+        else:
+            text_inputs = self._process_conversation_without_label(conversation, image_inputs, **kwargs)
+
+        return BatchFeature(data={**text_inputs, **image_inputs})
+
+    def process_images_conv(self, images: Union[BatchedImage, BatchedNamedImage], **kwargs):
+        modals, images = make_batched_images(images)
+        if not "merge_size" in kwargs:
+            kwargs["merge_size"] = [
+                1 if modal == "image" else 2
+                for modal in modals
+            ]
+
+        # pass kwargs without add_system_prompt and add_generation_prompt to image processor
+        kwargs = {k: v for k, v in kwargs.items() if k not in ["add_system_prompt", "add_generation_prompt"]}
+        image_inputs = self.image_processor(images=images, **kwargs)
+        image_inputs["modals"] = modals
+        return image_inputs
+        
+    def _load_multimodal_data(self, conversation: Conversation):
+        multimodal_info = defaultdict(list)
+        new_conversation = []
+        for message in conversation:
+            new_message = {"role": message["role"]}
+            if not isinstance(message["content"], (list, tuple)):
+                new_message["content"] = message["content"]
+                new_conversation.append(new_message)
+                continue
+
+            new_contents = []
+            for content in message["content"]:
+                if not isinstance(content, dict):
+                    new_contents.append(content)
+                    continue
+                assert "type" in content, "Content must have 'type' field."
+                if content["type"] in ["image", "video"] and content["type"] in content and isinstance(content[content["type"]], dict):
+                    # TODO: support other types which are not compatible with json
+                    load_args = content[content["type"]]
+                    data_id = json.dumps({k: v for k, v in load_args.items() if not k in ["start_time", "end_time"]})
+                    new_content = copy.deepcopy(content)
+                    multimodal_info[data_id].append(new_content)
+                    new_contents.append(new_content)
+                else:
+                    new_contents.append(content)
+
+            new_message["content"] = new_contents
+            new_conversation.append(new_message)
+
+        for data_id, contents in multimodal_info.items():
+            data_type = contents[0]["type"]
+            if data_type == "image":
+                image = self.load_images(contents[0][data_type]["image_path"])[0]
+                for content in contents:
+                    content["image"] = [image.copy()]
+
+            elif data_type == "video":
+                # TODO: start_time is None?
+                start_times = [content["video"].get("start_time", 0.) for content in contents]
+                end_times = [content["video"].get("end_time", float("inf")) for content in contents]
+
+                load_args = contents[0][data_type]
+                start_time, end_time = min(start_times), max(end_times)
+                if start_time > 0:
+                    load_args["start_time"] = start_time
+                if end_time < float("inf"):
+                    load_args["end_time"] = end_time
+                images, timestamps = self.load_video(**load_args)
+
+                for content, start_time, end_time in zip(contents, start_times, end_times):
+                    cur_images, cur_timestamps = [], []
+                    for image, timestamp in zip(images, timestamps):
+                        if start_time <= timestamp <= end_time:
+                            cur_images.append(image.copy())
+                            cur_timestamps.append(timestamp)
+
+                    content[data_type] = cur_images
+                    content["num_frames"] = len(cur_images)
+                    content["timestamps"] = cur_timestamps
+
+        return new_conversation
+
+    def _gather_multimodal_data(self, conversation: Conversation):
+        images = []
+        for message in conversation:
+            if not isinstance(message["content"], (list, tuple)):
+                continue
+            for content in message["content"]:
+                if not isinstance(content, dict):
+                    continue
+                if content["type"] == "video":
+                    video = content["video"]
+                    assert is_valid_video(video), f"Invalid video data: {video}."
+                    images.append(("video", video))
+                if content["type"] == "image":
+                    image = content["image"]
+                    images.append(("image", image))
+        images = images if len(images) > 0 else None
+        return images
+
+    def _get_downsampled_grid_sizes(self, image_inputs: Dict[str, Any]):
+        grid_sizes = []
+        for grid_size, merge_size in zip(image_inputs.get("grid_sizes", []), image_inputs.get("merge_sizes", [])):
+            if not torch.all(grid_size[1:] % merge_size == 0):
+                warnings.warn(f"Grid size {grid_size} is not divisible by merge size. Some undesired errors may occur.")
+            if grid_size[0] == 1:
+                grid_sizes.append(grid_size[1:] / merge_size)
+            elif grid_size[0] > 1:
+                grid_sizes.extend([grid_size[1:] / merge_size] * grid_size[0])
+        return grid_sizes
+
+    def _get_visual_seq_len(self, grid_size: torch.Tensor):
+        num_tokens = int(grid_size.prod().item())
+        return num_tokens
+
+    def process_text_conv(
+        self,
+        text: TextInput,
+        image_inputs: Dict[str, Any],
+        **kwargs,
+    ):
+        grid_sizes = self._get_downsampled_grid_sizes(image_inputs)
+
+        kwargs.pop("padding", None)
+        kwargs.pop("padding_side", None)
+
+        if not self.include_visual_tokens:
+            text = text.replace('<image>,', '')
+
+        if self.include_visual_probes:
+            if self.include_visual_tokens:
+                text = text.replace('<image>\n', '<image>\n' + DEFAULT_PROBE_TOKEN * self.num_visual_probes + '\n')
+            else:
+                text = text.replace('<image>\n', DEFAULT_PROBE_TOKEN * self.num_visual_probes + '\n')
+
+        image_idx = 0
+        while DEFAULT_IMAGE_TOKEN in text:
+            num_tokens = self._get_visual_seq_len(grid_sizes[image_idx])
+            text = text.replace(DEFAULT_IMAGE_TOKEN, "<placeholder>" * num_tokens, 1)
+            image_idx += 1
+        text = text.replace("<placeholder>", DEFAULT_IMAGE_TOKEN)
+ 
+        assert len(grid_sizes) == image_idx, "Number of images does not match the number of image tokens in the text."
+
+        text_inputs = self.tokenizer(text, **kwargs)
+        return text_inputs
+
+    def apply_chat_template(
+        self,
+        conversation: Conversation,
+        chat_template: Optional[str] = None,
+        tokenize: bool = False,
+        add_system_prompt: bool = False,
+        add_generation_prompt: bool = False,
+        image_token: Optional[str] = DEFAULT_IMAGE_TOKEN,
+        **kwargs,
+    ) -> str:
+        """
+        Similar to the `apply_chat_template` method on tokenizers, this method applies a Jinja template to input
+        conversations to turn them into a single tokenizable string.
+
+        Args:
+            conversation (`List[Dict, str, str]`):
+                The conversation to format.
+            chat_template (`Optional[str]`, *optional*):
+                The Jinja template to use for formatting the conversation. If not provided, the tokenizer's
+                chat template is used.
+            tokenize (`bool`, *optional*, defaults to `False`):
+                Whether to tokenize the output or not.
+            add_system_prompt (`bool`, *optional*, defaults to `False`):
+                Whether to add the system prompt to the output or not.
+            add_generation_prompt (`bool`, *optional*, defaults to `False`):
+                Whether to add the generation prompt to the output or not.
+            image_token (`Optional[str]`, *optional*, defaults to `<image>`):
+                The token to use for indicating images in the conversation.
+            **kwargs:
+                Additional keyword arguments
+        """
+
+        if chat_template is None:
+            # if self.chat_template is not None:
+            #     chat_template = self.chat_template
+            # else:
+            #     raise ValueError(
+            #         "No chat template is set for this processor. Please either set the `chat_template` attribute, "
+            #         "or provide a chat template as an argument. See "
+            #         "https://huggingface.co/docs/transformers/main/en/chat_templating for more information."
+            #     )
+            chat_template = "\n{%- set identifier = 'im' %}\n{% for message in messages %}\n    {% if add_system_prompt and loop.first and message['role'] != 'system' %}\n        {{- '<|im_start|>system\nYou are VideoLLaMA3 created by Alibaba DAMO Academy, a helpful assistant to help people understand images and videos.<|im_end|>\n' -}}\n    {% endif %}\n    {% if message['role'] == 'stream' %}\n        {% set identifier = 'stream' %}\n    {% else %}\n        {% set identifier = 'im' %}\n    {% endif %}\n    {{- '<|' + identifier + '_start|>' + message['role'] + '\n' -}}\n    {% if message['content'] is string %}\n        {{- message['content'] + '<|' + identifier + '_end|>\n' -}}\n    {% else %}\n        {% for content in message['content'] %}\n            {% if content is string %}\n                {{- content -}}\n            {% elif content['type'] == 'text' or 'text' in content %}\n                {{- content['text'] -}}\n            {% elif content['type'] == 'image' or 'image' in content %}\n                {% if 'timestamp' in content %}\n                    {{- 'Time ' + content['timestamp'] | round(1) | string + 's: ' -}}\n                {% endif %}\n                {{- image_token + '\n' -}}\n            {% elif content['type'] == 'video' or 'video' in content %}\n                {% for i in range(content['num_frames']) %}\n                    {% if 'timestamps' in content %}\n                        {{- 'Time ' + content['timestamps'][i] | round(1) | string + 's:' -}}\n                    {% endif %}\n                    {% if i < content['num_frames'] - 1 %}\n                        {{- image_token + ',' -}}\n                    {% else %}\n                        {{- image_token + '\n' -}}\n                    {% endif %}\n                {% endfor %}\n            {% endif %}\n        {% endfor %}\n        {% if identifier == 'stream' %}\n            {{- '<|' + identifier + '_end|>' -}}\n        {% else %}\n            {{- '<|' + identifier + '_end|>\n' -}}\n        {% endif %}\n    {% endif %}\n{% endfor %}\n{% if add_generation_prompt %}\n    {{- '<|im_start|>assistant\n' -}}\n{% endif %}\n"
+
+        return self.tokenizer.apply_chat_template(
+            conversation,
+            chat_template=chat_template,
+            tokenize=tokenize,
+            add_system_prompt=add_system_prompt,
+            add_generation_prompt=add_generation_prompt,
+            image_token=image_token,
+            **kwargs
+        )
+
+    def _process_conversation_without_label(
+        self,
+        conversation: Conversation,
+        image_inputs: Dict[str, Any],
+        **kwargs,
+    ):
+        output_kwargs = self._merge_kwargs(
+            ViSCoP_ProcessorKwargs,
+            tokenizer_init_kwargs=self.tokenizer.init_kwargs,
+            **kwargs,
+        )
+
+        chat_template_kwargs = {
+            "chat_template": None,
+            "add_system_prompt": True,
+            "add_generation_prompt": True,
+            "return_tensors": "pt",
+        }
+        prompt = self.apply_chat_template(
+            conversation,
+            tokenize=False,
+            **chat_template_kwargs,
+        )
+
+        return self.process_text_conv(prompt, image_inputs, **output_kwargs["text_kwargs"])

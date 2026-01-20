@@ -10,7 +10,7 @@ VisCoP: Visual Probing for Domain Adapatation of Vision Language Models</a></h2>
 </h5>
 
 <p align="center">
-<img src="assets/teaser.jpg" width="1000px" >
+<img src="teaser.jpg" width="1000px" >
 </p>
 
 </div>

@@ -8,7 +8,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--save-path-for-local-basevlm", "--save_path", type=str, required=True)
+    parser.add_argument("--save-path", type=str, required=True)
     args = parser.parse_args()
 
     os.makedirs(args.save_path, exist_ok=True)

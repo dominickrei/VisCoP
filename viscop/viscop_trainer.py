@@ -370,23 +370,23 @@ class ViSCoP_Trainer(Trainer):
                         "lr": self.args.vision_encoder_lr,
                     }
                 ])
-            else:
-                cross_attention_parameters = [name for name, _ in optimized_parameters if "interaction" in name]
-                decay_cross_attention_parameters = [name for name in cross_attention_parameters if name in decay_parameters]
-                nodecay_cross_attention_parameters = [name for name in cross_attention_parameters if name not in decay_parameters]
-                optimizer_grouped_parameters.extend([
-                    {
-                        "params": [p for n, p in optimized_parameters if n in decay_cross_attention_parameters], 
-                        "weight_decay": self.args.weight_decay,
-                        "lr": 2e-6,
-                    },
-                    {
-                        "params": [p for n, p in optimized_parameters if n in nodecay_cross_attention_parameters],
-                        "weight_decay": 0.0,
-                        "lr": 2e-6,
-                    }
-                ])
-
+            
+            # > add viscop params to optimizer
+            viscop_parameters = [name for name, _ in optimized_parameters if "interaction" in name or ("visual_probes" in name and "projector" not in name)]
+            decay_viscop_parameters = [name for name in viscop_parameters if name in decay_parameters]
+            nodecay_viscop_parameters = [name for name in viscop_parameters if name not in decay_parameters]
+            optimizer_grouped_parameters.extend([
+                {
+                    "params": [p for n, p in optimized_parameters if n in decay_viscop_parameters], 
+                    "weight_decay": self.args.weight_decay,
+                    "lr": 2e-6,
+                },
+                {
+                    "params": [p for n, p in optimized_parameters if n in nodecay_viscop_parameters],
+                    "weight_decay": 0.0,
+                    "lr": 2e-6,
+                }
+            ])
 
             optimizer_cls, optimizer_kwargs = Trainer.get_optimizer_cls_and_kwargs(self.args)
 

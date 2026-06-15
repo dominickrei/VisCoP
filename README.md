@@ -38,7 +38,8 @@ pip install flash-attn --no-build-isolation
 ```
 
 ## 💻 Inference
-First, download pre-trained VisCoP models through [HuggingFace](https://huggingface.co/dreilly/viscop-models/tree/main): `hf download dreilly/viscop-models --local-dir ./viscop_trained_models`
+1. Download pre-trained VisCoP models through [HuggingFace](https://huggingface.co/dreilly/viscop-models/tree/main): `hf download dreilly/viscop-models --local-dir ./viscop_trained_models`
+2. Run the following script to download the base VLM `python scripts/save_basevlm_for_finetuning.py --save-path-for-local-basevlm ./base_vlm`
 
 ```python
 from viscop import model_init, mm_infer

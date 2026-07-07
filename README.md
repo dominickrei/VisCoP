@@ -206,11 +206,11 @@ If you would like to build on VisCoP, we mention the specific codes that might b
 
 Please consider citing VisCoP if it is helpful for your project!
 ```bibtex
-@article{viscop2025,
-  title={VisCoP: Visual Probing for Video Domain Adaptation of Vision Language Models}, 
-  author={Dominick Reilly and Manish Kumar Govind and Le Xue and Srijan Das},
-  journal={arXiv Preprint},
-  year={2025}
+@inproceedings{reilly2026viscop,
+  title     = {VisCoP: Visual Probing for Video Domain Adaptation of Vision Language Models},
+  author    = {Dominick Reilly and Manish Kumar Govind and Le Xue and Srijan Das},
+  booktitle = {Proceedings of the European Conference on Computer Vision (ECCV)},
+  year      = {2026}
 }
 ```
 
